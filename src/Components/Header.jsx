@@ -133,8 +133,6 @@ export default function Header() {
           </div>
         )}
       </div>
-      <div><hr></hr>
-      <br></br></div>
     </header>
   );
 }

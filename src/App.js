@@ -15,6 +15,7 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import OnlineServices from './pages/OnlineServices';
+import Auth from './pages/Auth';
 
 function App() {
   return (
@@ -60,7 +61,7 @@ function App() {
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/book" element={<BookAppointment />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Auth />} />
             <Route path="/online-services" element={<OnlineServices />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
