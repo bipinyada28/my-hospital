@@ -13,7 +13,7 @@ const About = () => {
   }, []);
 
   return (
-    <div className="bg-lightgrey py-10 px-4 md:px-10">
+    <div className="bg-blue-50 py-10 px-4 md:px-10">
       {/* MAIN SECTION */}
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-start">
         <div data-aos="fade-right">

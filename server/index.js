@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import appointmentRoutes from './routes/appointmentRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json()); // To parse JSON requests
 app.use(cors()); 
 // Routes
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/messages', express.json(), messageRoutes);
 
 // MongoDB Connection
 mongoose

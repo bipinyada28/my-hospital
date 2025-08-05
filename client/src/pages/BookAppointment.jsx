@@ -226,7 +226,8 @@ const Appointment = () => {
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label>Date <span className="text-red-500">*</span></label>
-                <input type="date" name="date" required onChange={handleChange} value={formData.date} className="input" />
+                <input  type="date" required  name="date"  min={new Date().toISOString().split("T")[0]} onChange={handleChange}
+                value={formData.date} className="input"/>
               </div>
               <div>
                 <label>Time <span className="text-red-500">*</span></label>

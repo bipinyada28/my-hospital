@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -7,8 +7,51 @@ const Contact = () => {
     AOS.init({ duration: 800, once: true });
   }, []);
 
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!formData.name || !formData.phone || !formData.email || !formData.message) {
+    alert('Please fill in all required fields (*)');
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:5000/api/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Message sent successfully!');
+      setFormData({ name: '', phone: '', email: '', subject: '', message: '' });
+    } else {
+      alert('❌ Failed to send message');
+    }
+  } catch (err) {
+    alert('❌ Error connecting to server!');
+  }
+};
+
+  
+
   return (
-    <div className="bg-lightgrey min-h-screen py-10 px-4 md:px-10">
+    <div className="bg-blue-50 min-h-screen py-10 px-4 md:px-10">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-2">
           Contact Us
@@ -22,42 +65,46 @@ const Contact = () => {
 
           {/* Left Side - Info Cards */}
           <div className="space-y-6">
+
             {/* Location */}
-            <div className="bg-white p-5 rounded-lg shadow" data-aos="fade-up">
+            <div className="bg-blue-100 p-5 rounded-lg shadow" data-aos="fade-up">
               <h4 className="font-semibold text-blue-600 mb-2">📍 Location</h4>
               <p className="text-sm text-gray-700 leading-relaxed">
                 True Heal Multispeciality Hospital<br />
                 Vivek Complex, No.188<br />
-                80 Feet Ring Road<br />
-                Near BDA Complex<br />
-                Nagarabhavi, 2nd Stage<br />
-                Bengaluru, Karnataka 560072
+                80 Feet Ring Road, Near BDA Complex<br />
+                Nagarabhavi, Bengaluru, Karnataka 560072
               </p>
-              <button className="mt-3 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 text-sm flex items-center gap-2">
-                <span>🍚 Get Directions</span>
-              </button>
+              <a
+                href="https://www.google.com/maps?q=True+Heal+Multispeciality+Hospital"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-block px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 text-sm"
+              >
+                🍚 Get Directions
+              </a>
             </div>
 
             {/* Phone Numbers */}
-            <div className="bg-white p-5 rounded-lg shadow" data-aos="fade-up">
+            <div className="bg-blue-100 p-5 rounded-lg shadow" data-aos="fade-up">
               <h4 className="font-semibold text-blue-600 mb-2">📞 Phone Numbers</h4>
               <p className="text-sm text-red-600 font-semibold">Emergency</p>
-              <p className="text-sm mb-2">+91-8951177771</p>
+              <a href="tel:+918951177771" className="text-sm block mb-2 hover:underline">+91-8951177771</a>
               <p className="text-sm font-medium">Appointments</p>
-              <p className="text-sm mb-2">+91-8951177772</p>
+              <a href="tel:+918951177772" className="text-sm block mb-2 hover:underline">+91-8951177772</a>
               <p className="text-sm font-medium">General Inquiry</p>
-              <p className="text-sm">+91-8951177773</p>
+              <a href="tel:+918951177773" className="text-sm block hover:underline">+91-8951177773</a>
             </div>
 
             {/* Email */}
-            <div className="bg-white p-5 rounded-lg shadow" data-aos="fade-up">
+            <div className="bg-blue-100 p-5 rounded-lg shadow" data-aos="fade-up">
               <h4 className="font-semibold text-blue-600 mb-2">📧 Email</h4>
-              <p className="text-sm">info@trueheal.com</p>
-              <p className="text-sm">appointments@trueheal.com</p>
+              <a href="mailto:info@trueheal.com" className="text-sm block hover:underline">info@trueheal.com</a>
+              <a href="mailto:appointments@trueheal.com" className="text-sm hover:underline">appointments@trueheal.com</a>
             </div>
 
             {/* Hours */}
-            <div className="bg-white p-5 rounded-lg shadow" data-aos="fade-up">
+            <div className="bg-blue-100 p-5 rounded-lg shadow" data-aos="fade-up">
               <h4 className="font-semibold text-blue-600 mb-2">⏰ Hospital Hours</h4>
               <p className="text-sm">Emergency: <span className="text-red-600 font-semibold">24/7</span></p>
               <p className="text-sm">OPD: 8:00 AM - 8:00 PM</p>
@@ -68,24 +115,68 @@ const Contact = () => {
           {/* Right Side - Form + Map */}
           <div className="space-y-6">
             {/* Contact Form */}
-            <div className="bg-white p-6 rounded-lg shadow" data-aos="fade-left">
+            <div className="bg-blue-100 p-5 rounded-lg shadow" data-aos="fade-left">
               <h4 className="text-blue-600 font-semibold text-lg mb-4">Send us a Message</h4>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input type="text" placeholder="Full Name *" className="border p-2 rounded w-full" />
-                  <input type="tel" placeholder="Phone Number *" className="border p-2 rounded w-full" />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Full Name *"
+                    required
+                    className="border p-2 rounded w-full"
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Phone Number *"
+                    required
+                    maxLength={10}
+                    pattern="[0-9]{10}"
+                    className="border p-2 rounded w-full"
+                  />
                 </div>
-                <input type="email" placeholder="Email Address *" className="border p-2 rounded w-full" />
-                <input type="text" placeholder="Subject" className="border p-2 rounded w-full" />
-                <textarea placeholder="Message *" rows="4" className="border p-2 rounded w-full"></textarea>
-                <button type="submit" className="bg-primary text-white w-full py-2 rounded hover:bg-blue-800">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email Address *"
+                  required
+                  className="border p-2 rounded w-full"
+                />
+                <input
+                  type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Subject"
+                  className="border p-2 rounded w-full"
+                />
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Message *"
+                  rows="1"
+                  required
+                  className="border p-2 rounded w-full"
+                ></textarea>
+                <button
+                  type="submit"
+                  className="bg-primary text-white w-full py-2 rounded hover:bg-blue-800"
+                >
                   Send Message
                 </button>
               </form>
             </div>
 
-            {/* Map */}
-            <div className="bg-white p-6 rounded-lg shadow" data-aos="zoom-in">
+            {/* Map */} 
+            <div className="bg-blue-100 p-6 rounded-lg shadow" data-aos="zoom-in">
               <h4 className="text-blue-600 font-semibold mb-3">Find Us</h4>
               <div className="w-full h-64 rounded overflow-hidden mb-4">
                 <iframe
@@ -96,7 +187,6 @@ const Contact = () => {
                   style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
                 ></iframe>
               </div>
               <div className="grid grid-cols-3 text-center text-xs gap-2">

@@ -32,7 +32,7 @@ export default function Header() {
   ];
 
   return (
-    <header className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-lg bg-white' : 'relative'} transition-shadow duration-300`}>
+    <header className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-lg bg-red' : 'relative'} transition-shadow duration-300`}>
       {/* Top Bar */}
       <div className="hidden md:flex bg-blue-700 text-white text-sm flex-wrap items-center justify-between px-4 py-2">
         <div className="flex gap-4 flex-wrap">
