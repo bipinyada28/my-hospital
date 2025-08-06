@@ -15,6 +15,8 @@ const Contact = () => {
     message: '',
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -22,21 +24,24 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+
   if (!formData.name || !formData.phone || !formData.email || !formData.message) {
     alert('Please fill in all required fields (*)');
     return;
   }
 
+  setLoading(true); // ✅ Start loading
+
   try {
     const res = await fetch('http://localhost:5000/api/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     });
 
     const data = await res.json();
+    setLoading(false); // ✅ End loading
+
     if (res.ok) {
       alert('✅ Message sent successfully!');
       setFormData({ name: '', phone: '', email: '', subject: '', message: '' });
@@ -44,10 +49,10 @@ const Contact = () => {
       alert('❌ Failed to send message');
     }
   } catch (err) {
+    setLoading(false);
     alert('❌ Error connecting to server!');
   }
 };
-
   
 
   return (
@@ -166,12 +171,15 @@ const Contact = () => {
                   required
                   className="border p-2 rounded w-full"
                 ></textarea>
-                <button
-                  type="submit"
-                  className="bg-primary text-white w-full py-2 rounded hover:bg-blue-800"
-                >
-                  Send Message
-                </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full py-2 rounded text-white ${
+                      loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-blue-800'
+                    }`}
+                  >
+                    {loading ? 'Sending...' : 'Send Message'}
+                  </button>
               </form>
             </div>
 
@@ -192,7 +200,7 @@ const Contact = () => {
               <div className="grid grid-cols-3 text-center text-xs gap-2">
                 <div className="bg-gray-100 py-2 rounded">🅿 Parking<br />Free available</div>
                 <div className="bg-green-100 py-2 rounded">🚌 Public Transport<br />Bus stop nearby</div>
-                <div className="bg-blue-100 py-2 rounded">♿ Accessibility<br />Wheelchair access</div>
+                <div className="bg-blue-200 py-2 rounded">♿ Accessibility<br />Wheelchair access</div>
               </div>
             </div>
           </div>

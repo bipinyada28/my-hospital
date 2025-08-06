@@ -32,6 +32,8 @@ const Appointment = () => {
     notes: '',
   });
 
+  const [loading, setLoading] = useState(false);
+
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +77,7 @@ const Appointment = () => {
    const handleSubmit = async (e) => {
   e.preventDefault();
 
+  setLoading(true);
   try {
     const res = await fetch("http://localhost:5000/api/appointments", {
   method: "POST",
@@ -83,8 +86,11 @@ const Appointment = () => {
   },
   body: JSON.stringify(formData),
 });
+ 
 
     const data = await res.json();
+    setLoading(false);
+
     if (res.ok) {
       setStep(4); // Show confirmation
     } else {
@@ -245,7 +251,13 @@ const Appointment = () => {
             </div>
             <div className="flex justify-between mt-6">
               <button onClick={prevStep} className="btn-secondary">Previous</button>
-              <button onClick={handleSubmit} className="btn-primary">Submit</button>
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className={`btn-primary ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {loading ? 'Booking...' : 'Submit'}
+              </button>
             </div>
           </>
         )}
