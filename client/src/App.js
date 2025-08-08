@@ -13,6 +13,7 @@ import BookAppointment from './pages/BookAppointment';
 import Contact from './pages/Contact';
 import OnlineServices from './pages/OnlineServices';
 import NotFound from './pages/NotFound';
+import ResetPassword from './pages/ResetPassword';
 
 // Authentication Components
 import Auth from './pages/Auth';
@@ -63,6 +64,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/online-services" element={<OnlineServices />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
 
             {/* 404 Not Found */}
             <Route path="*" element={<NotFound />} />

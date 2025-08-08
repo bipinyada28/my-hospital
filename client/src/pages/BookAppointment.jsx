@@ -174,7 +174,7 @@ const Appointment = () => {
               </div>
               <div>
                 <label>Phone <span className="text-red-500">*</span></label>
-                <input required name="phone" onChange={handleChange} value={formData.phone} className="input" />
+                <input required name="phone" maxLength={10} pattern="[0-9]{10}" onChange={handleChange} value={formData.phone} className="input" />
               </div>
               <div>
                 <label>Date of Birth</label>

@@ -1,3 +1,4 @@
+// server/routes/authRoutes.js
 import express from 'express';
 import {
   register,
@@ -5,22 +6,25 @@ import {
   login,
   addDoctor,
   getCurrentUser,
+  forgotPassword,      // Import the new forgotPassword function
+  resetPassword        // Import the new resetPassword function
 } from '../controllers/authController.js';
 
 import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Public Routes
-router.post('/register', register);         // Step 1: Register with email + send OTP
-router.post('/verify-otp', verifyOTP);      // Step 2: Submit OTP to complete registration
-router.post('/login', login);               // Step 3: Login
+// Public routes
+router.post('/register', register);        // Send OTP
+router.post('/verify-otp', verifyOTP);     // Verify OTP
+router.post('/login', login);              // Login
 
-// Admin-only: Add new doctor
-router.post('/add-doctor', addDoctor);
+// New routes for password reset
+router.post('/forgot-password', forgotPassword);   // Forgot Password route
+router.post('/reset-password', resetPassword);    // Reset Password route
 
-// Protected: Dashboard data
+// Protected routes
+router.post('/add-doctor', authMiddleware, addDoctor);
 router.get('/me', authMiddleware, getCurrentUser);
 
 export default router;
-
