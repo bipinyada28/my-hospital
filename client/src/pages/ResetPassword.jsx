@@ -13,7 +13,7 @@ export default function ResetPassword() {
     try {
       await axios.post(`${API_BASE}/reset-password`, { token, newPassword: password });
       alert('Password reset successful. Please log in.');
-      navigate('/login');
+      navigate('/', { state: { openAuth: true } });
     } catch (err) {
       alert(err.response?.data?.message || 'Error resetting password');
     }

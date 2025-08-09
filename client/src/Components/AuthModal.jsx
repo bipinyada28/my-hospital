@@ -13,8 +13,11 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   const [forgotEmail, setForgotEmail] = useState('');
   const [loading, setLoading] = useState(false); // ✅ Loading for signup/login
   const [otpLoading, setOtpLoading] = useState(false); // ✅ Loading for OTP verification
+  const [forgotLoading, setForgotLoading] = useState(false);
+
 
   const [formData, setFormData] = useState({
+  
     fullName: '',
     email: '',
     phone: '',
@@ -120,21 +123,21 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   };
 
   const handleSendResetLink = async () => {
+    if (forgotLoading) return; // prevent multiple clicks
+
+    setForgotLoading(true);
     try {
-      // Make the request to the backend to send the reset password email
       await axios.post(`${API_BASE}/forgot-password`, { email: forgotEmail });
-
-      // Inform the user that the reset link has been sent
       alert('Password reset link sent to your email.');
-
-      // Reset the email input and close the modal
       setForgotEmail('');
       setShowForgotPassword(false);
     } catch (err) {
-      // Handle any errors from the backend
       alert(err.response?.data?.message || 'Error sending reset link');
+    } finally {
+      setForgotLoading(false);
     }
   };
+
 
 
   if (!isOpen) return null;
@@ -265,10 +268,14 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
               />
               <button
                 onClick={handleSendResetLink}
-                className="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800 transition"
+                disabled={forgotLoading}
+                className={`w-full text-white py-2 rounded transition ${
+                  forgotLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'
+                }`}
               >
-                Send Reset Link
+                {forgotLoading ? 'Sending...' : 'Send Reset Link'}
               </button>
+
             </div>
           </div>
         )}

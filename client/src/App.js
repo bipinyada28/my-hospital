@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 // Layout Components
 import Header from './Components/Header';
@@ -14,67 +15,92 @@ import Contact from './pages/Contact';
 import OnlineServices from './pages/OnlineServices';
 import NotFound from './pages/NotFound';
 import ResetPassword from './pages/ResetPassword';
-
-// Authentication Components
-import Auth from './pages/Auth';
-
+ //Dashords
+ import PatientDashboard from "./pages/Dashboard/PatientDashboard"; 
 // Home Page Extras
 import Hero from './Components/Hero';
 import ImageSlider from './Components/ImageSlider';
 
-function App() {
+// Authentication Modal
+import AuthModal from './Components/AuthModal';
+
+function AppContent() {
+  const location = useLocation();
+  const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.openAuth) {
+      setAuthOpen(true);
+    }
+  }, [location]);
+
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col">
-        <Header />
+    <div className="min-h-screen flex flex-col">
+      <Header />
 
-        <main className="flex-grow">
-          <Routes>
-            {/* Home Page */}
-            <Route
-              path="/"
-              element={
-                <>
-                  <ImageSlider />
+      <main className="flex-grow">
+        <Routes>
+          {/* Home Page */}
+          <Route
+            path="/"
+            element={
+              <>
+                <ImageSlider />
 
-                  {/* Desktop Hero */}
-                  <div className="hidden md:flex justify-center -mt-24 z-10 relative">
-                    <div className="grid grid-cols-4 gap-6 bg-white bg-opacity-90 p-4 rounded-xl shadow-lg max-w-5xl w-full mx-auto">
-                      <Hero />
-                    </div>
+                {/* Desktop Hero */}
+                <div className="hidden md:flex justify-center -mt-24 z-10 relative">
+                  <div className="grid grid-cols-4 gap-6 bg-white bg-opacity-90 p-4 rounded-xl shadow-lg max-w-5xl w-full mx-auto">
+                    <Hero />
                   </div>
+                </div>
 
-                  {/* Mobile Hero */}
-                  <div className="block md:hidden px-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <Hero />
-                    </div>
+                {/* Mobile Hero */}
+                <div className="block md:hidden px-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Hero />
                   </div>
+                </div>
 
-                  <Home />
-                </>
-              }
-            />
+                <Home />
+              </>
+            }
+          />
 
-            {/* Other Pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/departments" element={<Departments />} />
-            <Route path="/doctors" element={<Doctors />} />
-            <Route path="/book" element={<BookAppointment />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/online-services" element={<OnlineServices />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
+          {/* Other Pages */}
+          <Route path="/about" element={<About />} />
+          <Route path="/departments" element={<Departments />} />
+          <Route path="/doctors" element={<Doctors />} />
+          <Route path="/book" element={<BookAppointment />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/online-services" element={<OnlineServices />} />
 
-            {/* 404 Not Found */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
+          {/* Reset Password */}
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        <Footer />
-      </div>
-    </Router>
+          {/* Other routes */}
+          <Route path="/patient-dashboard" element={<PatientDashboard />} />
+
+          {/* 404 Not Found */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+
+      <Footer />
+
+      {/* Global Auth Modal */}
+      <AuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onLogin={() => setAuthOpen(false)}
+      />
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
