@@ -3,7 +3,6 @@ import { FaPhone, FaEnvelope, FaClock, FaMapMarkerAlt, FaBars, FaTimes } from 'r
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import logo from '../assets/logo2.png';
-
 import AuthModal from './AuthModal';
 
 export default function Header() {
@@ -52,7 +51,8 @@ export default function Header() {
         onLogin={() => setIsLoggedIn(true)}
       />
 
-      <header className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-lg bg-white' : 'relative'} transition-shadow duration-300`}>
+      <header className="relative">
+        {/* ✅ Top Info Bar (always visible) */}
         <div className="hidden md:flex bg-blue-700 text-white text-sm flex-wrap items-center justify-between px-4 py-2">
           <div className="flex gap-4 flex-wrap">
             <span className="flex items-center gap-1"><FaPhone /> +1 (555) 123-4567</span>
@@ -62,19 +62,27 @@ export default function Header() {
           <div className="flex items-center gap-1"><FaMapMarkerAlt /> 123 Healthcare Ave, Medical City</div>
         </div>
 
-        <div className="bg-white px-4 py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* ✅ Sticky NavBar */}
+        <div className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur shadow-md text-gray-800' : 'relative bg-white text-gray-800'} transition-all duration-300`}>
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+
+            {/* Logo */}
             <div className="flex-1">
               <Link to="/" className="flex items-center gap-2">
                 <img src={logo} alt="True Heal Logo" className="h-10 w-10" />
                 <div>
-                  <h1 className="text-lg font-bold text-blue-700">TRUE HEAL</h1>
-                  <p className="text-xs text-gray-500">Multispeciality Hospital</p>
+                  <h1 className={`text-lg font-bold ${isSticky ? 'text-blue-700' : 'text-blue-700'}`}>
+                    TRUE HEAL
+                  </h1>
+                  <p className={`text-xs ${isSticky ? 'text-gray-500' : 'text-gray-500'}`}>
+                    Multispeciality Hospital
+                  </p>
                 </div>
               </Link>
             </div>
 
-            <nav className="hidden md:flex flex-4 justify-center gap-6 text-sm font-medium text-gray-800">
+            {/* Desktop Nav */}
+            <nav className={`hidden md:flex gap-6 text-sm font-medium ${isSticky ? 'text-gray-800' : 'text-gray-800'}`}>
               {navLinks.map(link => (
                 <NavLink
                   key={link.name}
@@ -92,6 +100,7 @@ export default function Header() {
               ))}
             </nav>
 
+            {/* Auth Buttons */}
             <div className="flex-1 hidden md:flex justify-end gap-2">
               {isLoggedIn ? (
                 <>
@@ -124,11 +133,16 @@ export default function Header() {
               </Link>
             </div>
 
-            <button className="md:hidden text-blue-700" onClick={() => setMenuOpen(!menuOpen)}>
+            {/* Mobile Menu Toggle */}
+            <button
+              className={`md:hidden ${isSticky ? 'text-blue-700' : 'text-gray-800'}`}
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
               {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
             </button>
           </div>
 
+          {/* Mobile Menu */}
           {menuOpen && (
             <div className="md:hidden mt-2 bg-blue-700 text-white rounded-md shadow-lg p-4 space-y-3">
               {navLinks.map(link => (
@@ -176,6 +190,9 @@ export default function Header() {
             </div>
           )}
         </div>
+
+        {/* ✅ Spacer to Prevent Jump */}
+        {isSticky && <div style={{ height: '70px' }}></div>}
       </header>
     </>
   );

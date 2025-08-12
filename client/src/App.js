@@ -16,7 +16,9 @@ import OnlineServices from './pages/OnlineServices';
 import NotFound from './pages/NotFound';
 import ResetPassword from './pages/ResetPassword';
  //Dashords
- import PatientDashboard from "./pages/Dashboard/PatientDashboard"; 
+import PatientDashboard from "./pages/Dashboard/PatientDashboard"; 
+import AdminDashboard from './pages/Dashboard/AdminDashboard';
+import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
 // Home Page Extras
 import Hero from './Components/Hero';
 import ImageSlider from './Components/ImageSlider';
@@ -79,6 +81,9 @@ function AppContent() {
 
           {/* Other routes */}
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/doctore-dashboard" element={<DoctorDashboard />} />
+
 
           {/* 404 Not Found */}
           <Route path="*" element={<NotFound />} />
