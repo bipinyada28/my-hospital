@@ -16,6 +16,7 @@ import OnlineServices from './pages/OnlineServices';
 import NotFound from './pages/NotFound';
 import ResetPassword from './pages/ResetPassword';
  //Dashords
+import Dashboard from './pages/Dashboard/Dashboard';
 import PatientDashboard from "./pages/Dashboard/PatientDashboard"; 
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
@@ -80,6 +81,7 @@ function AppContent() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Other routes */}
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/doctore-dashboard" element={<DoctorDashboard />} />

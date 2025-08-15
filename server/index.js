@@ -5,6 +5,8 @@ import cors from 'cors';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+
 
 
 dotenv.config();
@@ -19,6 +21,7 @@ app.use(cors());
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/messages', express.json(), messageRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // MongoDB Connection
 mongoose
