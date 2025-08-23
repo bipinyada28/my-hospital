@@ -134,6 +134,10 @@ export const login = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'User not found, pls Register.' });
 
     // ✅ Block login if not verified
+    if (user.status === 'inactive') {
+      return res.status(403).json({ message: 'Your account has been deactivated by the admin.' });
+    }
+
     if (!user.verified) {
       return res.status(401).json({ message: 'Please verify your email before logging in' });
     }

@@ -6,7 +6,7 @@ import appointmentRoutes from './routes/appointmentRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from "./routes/dashboardRoutes.js";
-
+import adminRoutes from "./routes/adminRoutes.js";
 
 
 dotenv.config();
@@ -22,6 +22,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/messages', express.json(), messageRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminRoutes);
 
 // MongoDB Connection
 mongoose
