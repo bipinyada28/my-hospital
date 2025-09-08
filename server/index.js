@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from "path";
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -23,6 +24,8 @@ app.use('/api/messages', express.json(), messageRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
+// Serve static uploads folder
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // MongoDB Connection
 mongoose

@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 
 const appointmentSchema = new mongoose.Schema({
-  userEmail: { type: String, required: true },   // used to link appointments
+  userEmail: { type: String, required: true },
   firstName: String,
   lastName: String,
   phone: String,
@@ -14,6 +14,13 @@ const appointmentSchema = new mongoose.Schema({
   date: String,
   time: String,
   notes: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },    // new
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // new
+  status: {
+    type: String,
+    enum: ['Confirmed', 'Pending', 'Completed', 'Cancelled'],
+    default: 'Confirmed',
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

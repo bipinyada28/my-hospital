@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import Appointment from '../models/Appointment.js';
+
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -117,6 +119,12 @@ export const verifyOTP = async (req, res) => {
 
     await user.save();
 
+        // 🔗 Link past appointments for this user
+    await Appointment.updateMany(
+      { userEmail: user.email.toLowerCase().trim(), userId: null },
+      { $set: { userId: user._id } }
+    );
+
     res.status(200).json({ message: '✅ OTP verified and registration completed' });
 
   } catch (error) {
@@ -144,6 +152,12 @@ export const login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+
+        // ✅ Link old guest appointments to this user
+    await Appointment.updateMany(
+      { userEmail: user.email.toLowerCase().trim(), userId: null },
+      { $set: { userId: user._id } }
+    );
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
