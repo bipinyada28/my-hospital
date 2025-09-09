@@ -5,6 +5,23 @@ import Appointment from '../models/Appointment.js';
 import Report from '../models/Report.js';
 import bcrypt from 'bcryptjs';
 
+
+// Get all doctors (from User collection)
+export const getDoctors = async (req, res) => {
+  try {
+    const doctors = await User.find({ role: "doctor" })
+      .populate("department", "name description")
+      .select("-password")
+      .lean();
+
+    res.json(doctors.map(normalizeDoc));
+  } catch (error) {
+    console.error("❌ Failed to fetch doctors:", error);
+    res.status(500).json({ message: "Failed to fetch doctors" });
+  }
+};
+
+
 // --- Helper to normalize Mongoose documents ---
 const normalizeDoc = (doc) => {
     if (!doc) return null;

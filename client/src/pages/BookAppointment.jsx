@@ -33,6 +33,10 @@ const Appointment = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  
+  // NEW: State for departments and doctors
+  const [departments, setDepartments] = useState([]);
+  const [doctorsList, setDoctorsList] = useState([]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -74,33 +78,33 @@ const Appointment = () => {
     }
   };
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:5000/api/appointments", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(formData),
-});
- 
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (res.ok) {
-      setStep(4); // Show confirmation
-    } else {
-      alert(data.message || 'Something went wrong!');
+      if (res.ok) {
+        setStep(4); // Show confirmation
+      } else {
+        alert(data.message || 'Something went wrong!');
+      }
+    } catch (err) {
+      alert('Failed to book appointment!');
+      console.error(err);
     }
-  } catch (err) {
-    alert('Failed to book appointment!');
-    console.error(err);
-  }
-};
+  };
 
 
   const handleAddToCalendar = () => {
@@ -123,6 +127,17 @@ const Appointment = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // NEW: Fetch departments & doctors on component mount
+  useEffect(() => {
+    fetch("http://localhost:5000/api/departments")
+      .then((res) => res.json())
+      .then((data) => setDepartments(data));
+
+    fetch("http://localhost:5000/api/public/doctors")
+      .then((res) => res.json())
+      .then((data) => setDoctorsList(data));
   }, []);
 
   return (
@@ -198,24 +213,49 @@ const Appointment = () => {
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label>Department <span className="text-red-500">*</span></label>
-                <select name="department" required onChange={handleChange} value={formData.department} className="input">
+                <select
+                  name="department"
+                  required
+                  onChange={handleChange}
+                  value={formData.department}
+                  className="input"
+                >
                   <option value="">Select Department</option>
-                  <option>Emergency</option>
-                  <option>Cardiology</option>
-                  <option>Neurology</option>
+                  {departments.map((dept) => (
+                    <option key={dept._id} value={dept.name}>
+                      {dept.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label>Doctor <span className="text-red-500">*</span></label>
-                <select name="doctor" required onChange={handleChange} value={formData.doctor} className="input">
+                <select
+                  name="doctor"
+                  required
+                  onChange={handleChange}
+                  value={formData.doctor}
+                  className="input"
+                >
                   <option value="">Select Doctor</option>
-                  <option>Dr. Mehta</option>
-                  <option>Dr. Sharma</option>
+                  {doctorsList
+                    .filter((doc) => doc.department === formData.department)
+                    .map((doc) => (
+                      <option key={doc._id} value={doc.name}>
+                        Dr. {doc.name}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div>
                 <label>Reason for Visit <span className="text-red-500">*</span></label>
-                <textarea name="reason" required onChange={handleChange} value={formData.reason} className="input" />
+                <textarea
+                  name="reason"
+                  required
+                  onChange={handleChange}
+                  value={formData.reason}
+                  className="input"
+                />
               </div>
             </div>
             <div className="flex justify-between mt-6">
@@ -284,22 +324,22 @@ const Appointment = () => {
         )}
       </div>
       {/* Support Section */}
-<div className="mt-12 bg-white shadow rounded p-6 text-center max-w-xl mx-auto">
-  <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
-  <p className="text-gray-600 mb-4">Contact us directly from here.</p>
-  <div className="flex justify-center gap-4 flex-wrap">
-    <a href="tel:+911234567890">
-      <button className="btn-secondary flex items-center gap-2">
-        📞 Call Us
-      </button>
-    </a>
-    <a href="mailto:support@trueheal.com?subject=Appointment%20Support">
-      <button className="btn-secondary flex items-center gap-2">
-        📧 Email Us
-      </button>
-    </a>
-  </div>
-</div>
+      <div className="mt-12 bg-white shadow rounded p-6 text-center max-w-xl mx-auto">
+        <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
+        <p className="text-gray-600 mb-4">Contact us directly from here.</p>
+        <div className="flex justify-center gap-4 flex-wrap">
+          <a href="tel:+911234567890">
+            <button className="btn-secondary flex items-center gap-2">
+              📞 Call Us
+            </button>
+          </a>
+          <a href="mailto:support@trueheal.com?subject=Appointment%20Support">
+            <button className="btn-secondary flex items-center gap-2">
+              📧 Email Us
+            </button>
+          </a>
+        </div>
+      </div>
 
     </div>
   );

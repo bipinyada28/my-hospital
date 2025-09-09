@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
   specialty: { type: String },      // new
   department: { type: String },     // new
+  experience: Number,      // years of experience
+  bio: String,             // short description
+  location: String,        // e.g. "Building A, Floor 3" 
+  timing: String,          // "Mon–Fri 8AM–5PM"
+  patients: String,        // "2,500+"
+  specializations: [String],
+  photoUrl: String         // doctor profile image
+
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

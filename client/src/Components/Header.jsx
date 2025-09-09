@@ -175,7 +175,7 @@ export default function Header() {
                 </button>
               )}
               <Link
-                to="/book"
+                to="/book-appointment"
                 className="bg-blue-700 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-800 transition"
               >
                 Book Appointment
@@ -235,7 +235,7 @@ export default function Header() {
                 </button>
               )}
               <Link
-                to="/book"
+                to="/book-appointment"
                 className="block bg-white text-blue-700 px-2.5 py-1 text-sm rounded text-center hover:bg-yellow-300 transition"
               >
                 Book Appointment
