@@ -16,6 +16,7 @@ import {
   uploadReport,
   approveReport,
   rejectReport,
+  updateDoctor, // ✅ New import for doctor update
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -31,6 +32,9 @@ router.get("/users", getUsers);
 router.post("/users", createUser);
 router.patch("/users/:id/toggle", toggleUserStatus);
 router.delete("/users/:id", deleteUser);
+
+// 🩺 Doctor management endpoint
+router.put("/doctors/:id", updateDoctor); // ✅ New route for updating doctors
 
 // 📅 Appointments management endpoints
 router.get("/appointments", getAppointments);

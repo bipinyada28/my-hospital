@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Users, UserPlus, CalendarClock, FileText, Shield, Settings,
-  Search, Trash2, Edit, Filter, Plus, X, Check, Upload
+  Search, Trash2, Edit, Filter, Plus, X, Check, Upload,
 } from 'lucide-react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell,
@@ -76,11 +76,13 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
 
-  // data
+  // Data states
   const [metrics, setMetrics] = useState(null);
   const [users, setUsers] = useState([]);
+  const [doctors, setDoctors] = useState([]); // New state for doctors
   const [appointments, setAppointments] = useState([]);
   const [reports, setReports] = useState([]);
+  const [departments, setDepartments] = useState([]); // New state for departments
 
   // UI state
   const [roleFilter, setRoleFilter] = useState('all');
@@ -93,6 +95,7 @@ export default function AdminDashboard() {
 
   // Modals
   const [showAddDoctor, setShowAddDoctor] = useState(false);
+  const [showEditDoctor, setShowEditDoctor] = useState(false); // New modal for editing
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [showUploadReport, setShowUploadReport] = useState(false);
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -100,7 +103,7 @@ export default function AdminDashboard() {
   const [modalTitle, setModalTitle] = useState('');
 
   // Temp form state
-  const [doctorForm, setDoctorForm] = useState({ name: '', email: '', specialty: '' });
+  const [doctorForm, setDoctorForm] = useState({ name: '', email: '', specialty: '', department: '' }); // Added department
   const [patientForm, setPatientForm] = useState({ name: '', email: '', phone: '' });
   const [uploadForm, setUploadForm] = useState({ patientId: '', title: '', file: null, note: '' });
 
@@ -116,13 +119,12 @@ export default function AdminDashboard() {
     setModalMessage('');
   };
 
-
   // -------- REAL load from APIs --------
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-        navigate("/login");
-        return;
+      navigate("/login");
+      return;
     }
     let isMounted = true;
     const fetchAll = async () => {
@@ -130,22 +132,27 @@ export default function AdminDashboard() {
         setIsLoading(true);
         const headers = { Authorization: `Bearer ${token}` };
 
-        const [metricsRes, usersRes, apptsRes, reportsRes] = await Promise.all([
+        // Fetch all data separately
+        const [metricsRes, usersRes, apptsRes, reportsRes, departmentsRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/metrics`, { headers }),
           axios.get(`${API_BASE_URL}/users`, { headers }),
           axios.get(`${API_BASE_URL}/appointments`, { headers }),
           axios.get(`${API_BASE_URL}/reports`, { headers }),
+          axios.get(`http://localhost:5000/api/public/departments`, { headers }), // Fetch departments
         ]);
 
         if (!isMounted) return;
 
         const normalizeData = (data) => Array.isArray(data) ? data.map(item => ({ ...item, id: item._id || item.id })) : [];
 
+        // Set all the data states
         setMetrics(metricsRes.data);
         setUsers(normalizeData(usersRes.data));
         setAppointments(normalizeData(apptsRes.data));
         setReports(normalizeData(reportsRes.data));
-        
+        setDepartments(normalizeData(departmentsRes.data));
+        setDoctors(normalizeData(usersRes.data).filter(u => u.role === 'doctor'));
+
       } catch (err) {
         console.error('Failed to fetch admin data.', err.response || err.message);
         openModal('Error', 'Failed to fetch admin data.');
@@ -159,7 +166,7 @@ export default function AdminDashboard() {
     fetchAll();
     return () => { isMounted = false; };
   }, [navigate]);
-  
+
   // Chart Data Preparation (Client-side)
   const appointmentsByStatusChartData = useMemo(() => {
     const statusCounts = appointments.reduce((acc, appt) => {
@@ -181,7 +188,7 @@ export default function AdminDashboard() {
       const monthYear = d.toLocaleString('default', { month: 'short', year: '2-digit' });
       monthlyCounts[monthYear] = 0;
     }
-    
+
     // Count patients by creation month
     users.filter(u => u.role === 'patient').forEach(p => {
       const d = new Date(p.createdAt);
@@ -196,7 +203,6 @@ export default function AdminDashboard() {
       patients: monthlyCounts[key],
     }));
   }, [users]);
-
 
   // -------- Derived/UI helpers --------
   const cards = useMemo(() => ([
@@ -231,15 +237,17 @@ export default function AdminDashboard() {
     () => users.filter(u => u.role === 'doctor' && u.status === 'active').map(d => ({ id: d.id, name: d.name })),
     [users]
   );
-  
+
+  // ✅ UPDATED: Use a more robust date comparison for filtering appointments
   const filteredAppointments = useMemo(() => {
-    const today = todayISO();
-    const tomorrow = addDaysISO(1);
+    const today = getFormattedDate(new Date());
+    const tomorrow = getFormattedDate(new Date(new Date().setDate(new Date().getDate() + 1)));
+
     return appointments.filter(a => {
       if (apptStatusFilter !== 'all' && a.status !== apptStatusFilter) return false;
       if (apptDoctorFilter !== 'all' && a.doctor !== apptDoctorFilter) return false;
-      if (apptDateFilter === 'today' && a.date !== today) return false;
-      if (apptDateFilter === 'tomorrow' && a.date !== tomorrow) return false;
+      if (apptDateFilter === 'today' && getFormattedDate(new Date(a.date)) !== today) return false;
+      if (apptDateFilter === 'tomorrow' && getFormattedDate(new Date(a.date)) !== tomorrow) return false;
       return true;
     });
   }, [appointments, apptStatusFilter, apptDoctorFilter, apptDateFilter]);
@@ -303,6 +311,7 @@ export default function AdminDashboard() {
       name: doctorForm.name,
       email: doctorForm.email,
       specialty: doctorForm.specialty,
+      department: doctorForm.department, // Added department
       password: 'defaultPassword123',
       role: 'doctor',
     };
@@ -312,11 +321,34 @@ export default function AdminDashboard() {
       const res = await axios.post(`${API_BASE_URL}/users`, payload, { headers });
       const created = res.data;
       setUsers(prev => [{ id: created.id ?? created._id ?? created.userId, ...created }, ...prev]);
-      setDoctorForm({ name: '', email: '', specialty: '' });
+      setDoctorForm({ name: '', email: '', specialty: '', department: '' });
       setShowAddDoctor(false);
     } catch (err) {
       console.error(err);
       alert(err.message || 'Create doctor failed');
+    }
+  };
+
+  const handleEditDoctor = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: doctorForm.name,
+      email: doctorForm.email,
+      specialty: doctorForm.specialty,
+      department: doctorForm.department,
+    };
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.put(`${API_BASE_URL}/doctors/${doctorForm.id}`, payload, { headers });
+      const updated = res.data;
+      setDoctors(prev => prev.map(d => d.id === updated.id ? updated : d));
+      setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
+      setDoctorForm({ name: '', email: '', specialty: '', department: '' });
+      setShowEditDoctor(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Update doctor failed');
     }
   };
 
@@ -381,6 +413,11 @@ export default function AdminDashboard() {
     [users]
   );
 
+  const handleOpenEditDoctor = (doctor) => {
+    setDoctorForm(doctor);
+    setShowEditDoctor(true);
+  };
+
   // -------- UI --------
   return (
     <div className="min-h-screen bg-[#f8feff] text-slate-800 antialiased">
@@ -444,15 +481,23 @@ export default function AdminDashboard() {
                   <div className="bg-gradient-to-b from-white to-slate-50 border rounded-xl p-4 shadow-sm">
                     <h3 className="text-sm font-semibold mb-2">Today’s Appointments</h3>
                     <ul className="space-y-2 text-sm">
-                      {appointments.filter(a => a.date === todayISO()).map(a => (
+                      {/* ✅ UPDATED: Filter appointments using the new getFormattedDate helper */}
+                      {appointments.filter(a => getFormattedDate(new Date(a.date)) === getFormattedDate(new Date())).map(a => (
                         <li key={a.id} className="flex items-center justify-between bg-white border rounded-md p-2">
                           <div>
-                            <p className="font-medium">{a.patient} → {a.doctor}</p>
+                            {/* ✅ UPDATED: Display patient and doctor names from populated data */}
+                            <p className="font-medium">
+                              {a.userId?.name || a.firstName || 'Patient'} → {a.doctorId?.name || a.doctor || 'Doctor'}
+                            </p>
                             <p className="text-xs text-slate-500">{a.time}</p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${apptBadge(a.status)}`}>{a.status}</span>
                         </li>
                       ))}
+                      {/* ✅ ADDED: Display a message if no appointments are found */}
+                      {appointments.filter(a => getFormattedDate(new Date(a.date)) === getFormattedDate(new Date())).length === 0 && (
+                        <p className="p-2 text-slate-500">No appointments today.</p>
+                      )}
                     </ul>
                   </div>
 
@@ -561,6 +606,11 @@ export default function AdminDashboard() {
                           <button className="text-xs text-rose-600 flex items-center gap-1" onClick={() => handleUserDelete(u.id)}>
                             <Trash2 size={14} /> Delete
                           </button>
+                          {u.role === 'doctor' && (
+                            <button className="text-xs text-indigo-600 flex items-center gap-1" onClick={() => handleOpenEditDoctor(u)}>
+                              <Edit size={14} /> Edit
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -577,43 +627,75 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                     <h3 className="text-sm font-semibold">Appointments</h3>
                     <div className="flex items-center gap-2">
-                      <select className="text-sm border rounded-md px-2 py-1 bg-white" value={apptStatusFilter} onChange={(e) => setApptStatusFilter(e.target.value)}>
+                      <select
+                        className="text-sm border rounded-md px-2 py-1 bg-white"
+                        value={apptStatusFilter}
+                        onChange={(e) => setApptStatusFilter(e.target.value)}
+                      >
                         <option value="all">All Status</option>
                         <option value="Confirmed">Confirmed</option>
                         <option value="Pending">Pending</option>
                         <option value="Completed">Completed</option>
                         <option value="Cancelled">Cancelled</option>
                       </select>
-                      <select className="text-sm border rounded-md px-2 py-1 bg-white" value={apptDoctorFilter} onChange={(e) => setApptDoctorFilter(e.target.value)}>
+
+                      <select
+                        className="text-sm border rounded-md px-2 py-1 bg-white"
+                        value={apptDoctorFilter}
+                        onChange={(e) => setApptDoctorFilter(e.target.value)}
+                      >
                         <option value="all">All Doctors</option>
-                        {doctorOptions.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+                        {doctorOptions.map((d) => (
+                          <option key={d.id} value={d.name}>
+                            {d.name}
+                          </option>
+                        ))}
                       </select>
-                      <select className="text-sm border rounded-md px-2 py-1 bg-white" value={apptDateFilter} onChange={(e) => setApptDateFilter(e.target.value)}>
+
+                      <select
+                        className="text-sm border rounded-md px-2 py-1 bg-white"
+                        value={apptDateFilter}
+                        onChange={(e) => setApptDateFilter(e.target.value)}
+                      >
                         <option value="today">Today</option>
                         <option value="tomorrow">Tomorrow</option>
                         <option value="all">All Dates</option>
                       </select>
+
                       <button className="px-3 py-2 rounded-md border">Export</button>
                     </div>
                   </div>
 
+                  {/* ✅ Updated appointment list rendering */}
                   <div className="space-y-2">
-                    {filteredAppointments.map(a => (
-                      <div key={a.id} className="bg-white border rounded-xl p-3 shadow-sm flex items-center justify-between">
+                    {filteredAppointments.map((a) => (
+                      <div
+                        key={a.id}
+                        className="bg-white border rounded-xl p-3 shadow-sm flex items-center justify-between"
+                      >
                         <div>
-                          <p className="font-medium">{a.patient} → {a.doctor}</p>
-                          <p className="text-xs text-slate-400">{formatDate(a.date)} • {a.time}</p>
+                          {/* ✅ Use populated user and doctor data if available */}
+                          <p className="font-medium">
+                            {a.userId?.name || a.firstName || 'Patient'} → {a.doctorId?.name || a.doctor || 'Doctor'}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {formatDate(a.date)} • {a.time}
+                          </p>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded-full ${apptBadge(a.status)}`}>{a.status}</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${apptBadge(a.status)}`}>
+                          {a.status}
+                        </span>
                       </div>
                     ))}
+
                     {filteredAppointments.length === 0 && (
-                      <div className="p-4 text-sm text-slate-500 bg-white rounded border">No appointments for selected filters.</div>
+                      <div className="p-4 text-sm text-slate-500 bg-white rounded border">
+                        No appointments for selected filters.
+                      </div>
                     )}
                   </div>
                 </div>
               )}
-
               {/* -------- Reports -------- */}
               {tab === 'reports' && (
                 <div>
@@ -721,15 +803,43 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Add Doctor Modal */}
       {showAddDoctor && (
         <Modal title="Add Doctor" onClose={() => setShowAddDoctor(false)}>
           <form onSubmit={handleAddDoctor} className="space-y-3">
             <Input label="Full Name" value={doctorForm.name} onChange={(v) => setDoctorForm(s => ({ ...s, name: v }))} />
             <Input label="Email" value={doctorForm.email} onChange={(v) => setDoctorForm(s => ({ ...s, email: v }))} />
             <Input label="Specialty" value={doctorForm.specialty} onChange={(v) => setDoctorForm(s => ({ ...s, specialty: v }))} />
+            <SelectInput
+              label="Department"
+              value={doctorForm.department}
+              onChange={(v) => setDoctorForm(s => ({ ...s, department: v }))}
+              options={departments.map(d => ({ value: d.id, label: d.name }))} // Use department ID
+            />
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setShowAddDoctor(false)} className="px-3 py-2 rounded-md border">Cancel</button>
               <button type="submit" className="px-3 py-2 rounded-md bg-sky-500 text-white">Add Doctor</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Edit Doctor Modal */}
+      {showEditDoctor && (
+        <Modal title="Edit Doctor" onClose={() => setShowEditDoctor(false)}>
+          <form onSubmit={handleEditDoctor} className="space-y-3">
+            <Input label="Full Name" value={doctorForm.name} onChange={(v) => setDoctorForm(s => ({ ...s, name: v }))} />
+            <Input label="Email" value={doctorForm.email} onChange={(v) => setDoctorForm(s => ({ ...s, email: v }))} readOnly />
+            <Input label="Specialty" value={doctorForm.specialty} onChange={(v) => setDoctorForm(s => ({ ...s, specialty: v }))} />
+            <SelectInput
+              label="Department"
+              value={doctorForm.department?.id || doctorForm.department} // Handle both ObjectId and populated object
+              onChange={(v) => setDoctorForm(s => ({ ...s, department: v }))}
+              options={departments.map(d => ({ value: d.id, label: d.name }))}
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowEditDoctor(false)} className="px-3 py-2 rounded-md border">Cancel</button>
+              <button type="submit" className="px-3 py-2 rounded-md bg-sky-500 text-white">Save Changes</button>
             </div>
           </form>
         </Modal>
@@ -810,6 +920,25 @@ function FileUploadInput({ label, file, onFileChange, required = false }) {
   );
 }
 
+// New SelectInput Component
+function SelectInput({ label, value, onChange, options = [] }) {
+  return (
+    <div className="text-sm">
+      <label className="block text-slate-600 mb-1">{label}</label>
+      <select
+        className="w-full border rounded px-3 py-2"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required
+      >
+        <option value="">Select {label}</option>
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
 /* ---------- Small UI helpers ---------- */
 function Modal({ title, onClose, children }) {
@@ -828,7 +957,7 @@ function Modal({ title, onClose, children }) {
   );
 }
 
-function Input({ label, value, onChange, type = 'text' }) {
+function Input({ label, value, onChange, type = 'text', readOnly = false }) {
   return (
     <div className="text-sm">
       <label className="block text-slate-600 mb-1">{label}</label>
@@ -837,19 +966,32 @@ function Input({ label, value, onChange, type = 'text' }) {
         className="w-full border rounded px-3 py-2"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        required
+        required={!readOnly}
+        readOnly={readOnly}
       />
     </div>
   );
 }
 
 /* ---------- Date helpers ---------- */
-function todayISO() {
-  const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString().slice(0, 10);
+// ✅ UPDATED: A new helper function for consistent date formatting
+function getFormattedDate(date) {
+  if (!date) return null;
+  const d = new Date(date);
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
-function addDaysISO(n) {
-  const d = new Date(); d.setDate(d.getDate() + n); d.setHours(0, 0, 0, 0); return d.toISOString().slice(0, 10);
-}
+
+// ✅ REPLACED: This function is now replaced by the new getFormattedDate above
+// function todayISO() {
+//   const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString().slice(0, 10);
+// }
+// ✅ REPLACED: This function is now replaced by the new getFormattedDate logic in useMemo
+// function addDaysISO(n) {
+//   const d = new Date(); d.setDate(d.getDate() + n); d.setHours(0, 0, 0, 0); return d.toISOString().slice(0, 10);
+// }
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });

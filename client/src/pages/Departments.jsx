@@ -153,14 +153,14 @@ const Departments = () => {
                 </div>
 
                 {/* Book Appointment */}
-                <button
-                  onClick={() =>
-                    (window.location.href = `/book-appointment?department=${dept.name}`)
-                  }
-                  className="mt-8 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition text-lg font-medium flex items-center justify-center gap-2 w-full"
-                >
-                  Book Appointment <FaArrowRight />
-                </button>
+              <button
+                onClick={() =>
+                  (window.location.href = `/book-appointment?department=${dept.name}`)
+                }
+                className="mt-8 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition text-lg font-medium flex items-center justify-center gap-2 w-full"
+              >
+                Book Appointment
+              </button>
               </div>
             );
           })}

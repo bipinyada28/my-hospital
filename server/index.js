@@ -11,7 +11,8 @@ import authRoutes from "./routes/authRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import publicRoutes from "./routes/publicRoutes.js";
-
+import drRoutes from "./routes/drRoutes.js";
+import patientRoutes from './routes/patientRoutes.js';
 // 👇 new
 import departmentRoutes from "./routes/departmentRoutes.js";
 
@@ -32,6 +33,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/departments", departmentRoutes); // ✅ added
 app.use("/api/public", publicRoutes);
+app.use("/api/doctor", drRoutes);
+app.use('/api/patient', patientRoutes);
 // __dirname fix in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

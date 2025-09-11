@@ -8,7 +8,7 @@ import {
   FaFilter,
   FaStar,
   FaMapMarkerAlt,
-} from "react-icons/fa";
+} from "react-icons/fa";  
 
 export default function Doctors() {
   const [doctors, setDoctors] = useState([]);
@@ -172,12 +172,12 @@ export default function Doctors() {
 
                 {/* Book Button */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
-                  <Link
-                    to={`/book-appointment?doctor=${doc._id}&department=${doc.department}`}
-                    className="flex-grow text-center bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700 transition text-sm font-medium"
-                  >
-                    Book Appointment
-                  </Link>
+                <Link
+                  to={`/book-appointment?doctor=${doc._id}&department=${doc.department}`}
+                  className="flex-grow text-center bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700 transition text-sm font-medium"
+                >
+                  Book Appointment
+                </Link>
                 </div>
               </div>
             ))}

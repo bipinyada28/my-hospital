@@ -7,7 +7,7 @@ const services = [
     icon: <FaCalendarCheck size={24} />,
     title: 'Book Appointment',
     desc: 'Consult or Teleconsult',
-    path: '/book',
+    path: '/book-appointment',
   },
   {
     icon: <FaUserMd size={24} />,

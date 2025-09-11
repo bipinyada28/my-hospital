@@ -5,7 +5,6 @@ import Appointment from '../models/Appointment.js';
 import Report from '../models/Report.js';
 import bcrypt from 'bcryptjs';
 
-
 // Get all doctors (from User collection)
 export const getDoctors = async (req, res) => {
   try {
@@ -24,12 +23,46 @@ export const getDoctors = async (req, res) => {
 
 // --- Helper to normalize Mongoose documents ---
 const normalizeDoc = (doc) => {
-    if (!doc) return null;
-    const transformed = doc.toObject ? doc.toObject() : doc;
-    transformed.id = transformed._id;
-    delete transformed._id;
-    delete transformed.__v;
-    return transformed;
+  if (!doc) return null;
+  const transformed = doc.toObject ? doc.toObject() : doc;
+  transformed.id = transformed._id;
+  delete transformed._id;
+  delete transformed.__v;
+  return transformed;
+};
+
+// New Function: Update a doctor's details
+export const updateDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, specialty, department } = req.body;
+
+    const doctor = await User.findById(id);
+    if (!doctor || doctor.role !== 'doctor') {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    // Update fields
+    // Check if the department ID is a valid ObjectId before updating
+    if (department && mongoose.Types.ObjectId.isValid(department)) {
+      doctor.department = department;
+    }
+    if (name !== undefined) doctor.name = name;
+    if (email !== undefined) doctor.email = email;
+    if (specialty !== undefined) doctor.specialty = specialty;
+
+    await doctor.save();
+
+    const updatedDoctor = await User.findById(id)
+      .populate("department", "name")
+      .select("-password")
+      .lean();
+
+    res.json(normalizeDoc(updatedDoctor));
+  } catch (error) {
+    console.error("❌ Failed to update doctor:", error);
+    res.status(500).json({ message: "Failed to update doctor" });
+  }
 };
 
 // Get metrics summary (total counts)

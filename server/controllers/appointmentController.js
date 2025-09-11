@@ -1,6 +1,8 @@
 import Appointment from '../models/Appointment.js';
 import nodemailer from 'nodemailer';
+import User from "../models/User.js";
 import mongoose from "mongoose";
+
 
 // A helper function to normalize the output
 const normalizeDoc = (doc) => {
@@ -16,21 +18,28 @@ export const createAppointment = async (req, res) => {
   try {
     console.log("📥 Received Appointment:", req.body);
 
-    // If logged in, authMiddleware will set req.userId
+    const { doctor, department, email, firstName, date, time } = req.body;
+
+    // ✅ find doctor by name (or email if you want stricter match)
+    const doctorUser = await User.findOne({
+      role: "doctor",
+      name: doctor.replace(/^Dr\.\s*/, ""), // remove "Dr." if present
+      department,
+    });
+
     const appointmentData = {
       ...req.body,
-      userEmail: req.body.email, 
-      userId: req.userId || null, // ✅ link logged-in patient if available
+      userEmail: email,
+      userId: req.userId || null,
+      doctorId: doctorUser ? doctorUser._id : null, // ✅ link doctor
     };
 
     const appointment = new Appointment(appointmentData);
     await appointment.save();
 
-    // ✅ Send email
-    const { email, firstName, doctor, date, time } = req.body;
-
+    // ✅ Send confirmation email
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -40,11 +49,12 @@ export const createAppointment = async (req, res) => {
     const mailOptions = {
       from: `"True Heal Hospital" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Appointment Confirmation',
+      subject: "Appointment Confirmation",
       html: `
         <h2>Hi ${firstName},</h2>
         <p>Your appointment has been successfully booked.</p>
         <p><strong>Doctor:</strong> ${doctor}</p>
+        <p><strong>Department:</strong> ${department}</p>
         <p><strong>Date:</strong> ${date}</p>
         <p><strong>Time:</strong> ${time}</p>
         <br/>
@@ -54,11 +64,10 @@ export const createAppointment = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(201).json({ message: 'Appointment booked successfully!' });
-
+    res.status(201).json({ message: "Appointment booked successfully!" });
   } catch (error) {
     console.error("❌ Error saving appointment:", error);
-    res.status(500).json({ message: 'Failed to book appointment!' });
+    res.status(500).json({ message: "Failed to book appointment!" });
   }
 };
 
