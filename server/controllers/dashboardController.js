@@ -17,16 +17,26 @@ export const getDashboardData = async (req, res) => {
       const appointments = await Appointment.find({ userId })
         .populate("doctorId", "name specialty")
         .sort({ date: 1 });
+      
+      const reports = await Report.find({ patientId: userId })
+        .populate("doctorId", "name")
+        .sort({ createdAt: -1 });
 
-      return res.json({ role, profile, appointments });
+      return res.json({ role, profile, appointments, reports });
     }
 
     if (role === "doctor") {
       const appointments = await Appointment.find({ doctorId: userId })
         .populate("userId", "name email")
         .sort({ date: 1 });
+      
+      const patients = await User.find({ role: 'patient' }); // Fetch all patients, or optimize by fetching only those tied to this doctor
+      
+      const reports = await Report.find({ doctorId: userId })
+        .populate("patientId", "name email")
+        .sort({ createdAt: -1 });
 
-      return res.json({ role, profile, appointments });
+      return res.json({ role, profile, appointments, reports, patients });
     }
 
     if (role === "admin") {

@@ -23,6 +23,7 @@ import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
 // Home Page Extras
 import Hero from './Components/Hero';
 import ImageSlider from './Components/ImageSlider';
+import HealthFirst from './pages/HealthFirst';
 
 // Authentication Modal
 import AuthModal from './Components/AuthModal';
@@ -76,6 +77,7 @@ function AppContent() {
           <Route path="/book-appointment" element={<BookAppointment />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/online-services" element={<OnlineServices />} />
+          <Route path="/healthfirst" element={<HealthFirst />} />
 
           {/* Reset Password */}
           <Route path="/reset-password/:token" element={<ResetPassword />} />

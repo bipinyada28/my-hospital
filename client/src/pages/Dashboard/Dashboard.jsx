@@ -5,13 +5,11 @@ import PatientDashboard from "./PatientDashboard";
 import DoctorDashboard from "./DoctorDashboard";
 import AdminDashboard from "./AdminDashboard";
 
-
 export default function Dashboard() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [role, setRole] = useState(null);
     const [data, setData] = useState(null);
-
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -52,11 +50,10 @@ export default function Dashboard() {
     }
     
     // Transform data here before passing to components
-    // This is a robust approach to keep child components "dumb"
     const patientAppointments = data.appointments?.map(app => ({
       ...app,
       doctor: app.doctorId?.name,
-      department: app.doctorId?.department,
+      department: app.doctorId?.specialty, // Corrected to use specialty
     })) || [];
     
     const patientReports = data.reports?.map(report => ({
@@ -64,7 +61,7 @@ export default function Dashboard() {
         doctor: report.doctorId?.name,
     })) || [];
 
-    // ✅ Pass profile everywhere
+    // Correctly render components based on the role
     if (role === "patient") {
         return (
             <PatientDashboard 
@@ -75,13 +72,25 @@ export default function Dashboard() {
         );
     }
     if (role === "doctor") {
-        return <DoctorDashboard profile={data.profile} appointments={data.appointments} />;
+        // You need to retrieve doctor-specific data here.
+        // Your backend `getDashboardData` for doctors only returns appointments.
+        // To make `DoctorDashboard` work as expected, you need to either:
+        // 1. Fetch reports and patients here as well, or
+        // 2. Adjust the `drController` to return all required data.
+        // Based on your backend, let's assume you've updated `getDashboardData`
+        // or will create dedicated endpoints for reports/patients.
+        return <DoctorDashboard 
+            profile={data.profile} 
+            appointments={data.appointments} 
+            reports={data.reports} // Assuming reports are now returned
+            patients={data.patients} // Assuming patients are now returned
+        />;
     }
     if (role === "admin") {
         return (
             <AdminDashboard
                 profile={data.profile}
-                stats={data.stats}
+                metrics={data.stats}
                 users={data.users}
                 appointments={data.appointments}
                 reports={data.reports}

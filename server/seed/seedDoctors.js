@@ -27,12 +27,12 @@ const seedDoctors = async () => {
         timing: "Mon–Fri 9AM–5PM",
         patients: "2,500+",
         specializations: ["Heart Surgery", "Preventive Cardiology"],
-        photoUrl: "https://randomuser.me/api/portraits/men/11.jpg",
+        photoUrl: "https://images.unsplash.com/photo-1712215544003-af10130f8eb3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDM0fHx8ZW58MHx8fHx8",
       },
       {
         name: "Meera Nair",
         email: "meera.nair@example.com",
-        password: "password123",
+        password: "$2b$10$L.skeqf6BnX7ZV45pUP1E.wRk.4aqpma.uWlS1KqG5TAjZYKUdp2W",
         role: "doctor",
         department: "Neurology",
         specialty: "Neurology",
@@ -41,7 +41,7 @@ const seedDoctors = async () => {
         timing: "Mon–Fri 9AM–6PM",
         patients: "1,800+",
         specializations: ["Stroke Treatment", "Epilepsy"],
-        photoUrl: "https://randomuser.me/api/portraits/women/22.jpg",
+        photoUrl: "https://cdn.pixabay.com/photo/2017/01/29/21/16/nurse-2019420_1280.jpg",
       },
       {
         name: "Emily Rodriguez",
@@ -55,7 +55,7 @@ const seedDoctors = async () => {
         timing: "Mon–Sat 8AM–4PM",
         patients: "3,200+",
         specializations: ["Newborn Care", "Child Development"],
-        photoUrl: "https://randomuser.me/api/portraits/women/33.jpg",
+        photoUrl: "https://images.unsplash.com/photo-1623854767648-e7bb8009f0db?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         name: "David Thompson",
@@ -83,7 +83,7 @@ const seedDoctors = async () => {
         timing: "Mon–Sat 9AM–5PM",
         patients: "1,200+",
         specializations: ["Cataract Surgery", "LASIK"],
-        photoUrl: "https://randomuser.me/api/portraits/women/55.jpg",
+        photoUrl: "https://plus.unsplash.com/premium_photo-1675807264002-74250202f195?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         name: "Robert Wilson",
@@ -102,7 +102,7 @@ const seedDoctors = async () => {
       {
         name: "Priya Sharma",
         email: "priya.sharma@example.com",
-        password: "password123",
+        password: "$2b$10$L.skeqf6BnX7ZV45pUP1E.wRk.4aqpma.uWlS1KqG5TAjZYKUdp2W",
         role: "doctor",
         department: "Internal Medicine",
         specialty: "Internal Medicine",
@@ -111,7 +111,7 @@ const seedDoctors = async () => {
         timing: "Mon–Sat 9AM–6PM",
         patients: "2,500+",
         specializations: ["Diabetes Management", "Preventive Medicine"],
-        photoUrl: "https://randomuser.me/api/portraits/women/77.jpg",
+        photoUrl: "https://images.unsplash.com/photo-1659353885472-85256e76dd28?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         name: "Arjun Desai",
